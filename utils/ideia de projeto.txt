@@ -1,0 +1,170 @@
+
+==========================================================================
+PROJETO: SIMULADOR DE MISSÃO AEROESPACIAL (ARQUITETURA DO SISTEMA)
+==========================================================================
+
+[DESCRIÇÃO]
+Sistema modular para cálculo de trajetórias de foguetes, desde a ignição
+até a inserção em órbita, considerando física real e perdas dinâmicas.
+
+--------------------------------------------------------------------------
+1. MÓDULO DE ATMOSFERA E ARRASTO (aerodynamics.py)
+--------------------------------------------------------------------------
+Calcula a resistência do ar baseada na altitude e velocidade.
+
+FORMULA DO ARRASTO:
+Fd = 0.5 * rho * v^2 * Cd * A
+
+Onde:
+- Fd: Força de Arrasto (Newtons)
+- rho: Densidade do ar (kg/m3) -> rho = 1.225 * exp(-altitude / 8500)
+- v: Velocidade do foguete (m/s)
+- Cd: Coeficiente de arrasto (forma do foguete)
+- A: Área da seção transversal (m2)
+
+FUNÇÃO: calcular_arrasto(altitude, velocidade, area_foguete, cd)
+
+--------------------------------------------------------------------------
+2. MÓDULO DE PROPULSÃO E MASSA (propulsion.py)
+--------------------------------------------------------------------------
+Gerencia o consumo de combustível e a Delta-v disponível.
+
+EQUAÇÃO DE TSIOLKOVSKY:
+Δv = ve * ln(m0 / mf)
+
+Onde:
+- ve: Velocidade de exaustão efetiva (Isp * 9.8)
+- m0: Massa inicial (foguete + combustível)
+- mf: Massa final (massa seca)
+
+CONSUMO DE MASSA (Iteração):
+massa_atual = massa_anterior - (taxa_consumo * dt)
+
+FUNÇÃO: calcular_aceleracao(empuxo, massa_atual, angulo_pitch)
+
+--------------------------------------------------------------------------
+3. MÓDULO DE MECÂNICA ORBITAL E PERDAS (orbital_mechanics.py)
+--------------------------------------------------------------------------
+Verifica condições de órbita e calcula penalidades gravitacionais.
+
+VELOCIDADE ORBITAL:
+v_orb = sqrt(G * M / r)
+
+CONSTANTES:
+- G (Constante Gravitacional): 6.674e-11 N.m2/kg2
+- M (Massa da Terra): 5.972e24 kg
+- r (Raio Total): Raio da Terra (6.371.000m) + Altitude
+
+PERDAS POR GRAVIDADE:
+Δv_loss = g * sin(theta) * t
+
+Onde:
+- g: 9.81 m/s2
+- theta: Ângulo em relação ao horizonte (90 vertical, 0 horizontal)
+- t: Tempo de queima
+
+FUNÇÃO: verificar_orbita(altitude, velocidade_tangencial)
+
+--------------------------------------------------------------------------
+4. INTEGRAÇÃO DO SISTEMA (main.py)
+--------------------------------------------------------------------------
+Aceleração Resultante = (Empuxo - Arrasto - Peso) / Massa Atual
+
+* O sistema deve rodar em um loop 'while' até que a altitude ou
+  velocidade orbital seja atingida.
+==========================================================================
+
+==========================================================================
+PARÂMETROS DE ENTRADA: AERODINÂMICA
+==========================================================================
+
+Para calcular o Coeficiente de Arrasto (Cd) total, o sistema precisa:
+
+1. GEOMETRIA DA OGIVA (Nose Cone):
+   - Cônica: Cd ~ 0.50
+   - Ogiva (Curva): Cd ~ 0.35
+   - Von Kármán: Cd ~ 0.25 (Ideal para supersônico)
+
+2. ÁREA DE SEÇÃO TRANSVERSAL (A):
+   - Fórmula: A = pi * (diâmetro / 2)^2
+   - Unidade: Metros quadrados (m²)
+
+3. ACABAMENTO SUPERFICIAL:
+   - Polido/Pintado: Menor arrasto de superfície.
+   - Áspero/Fosco: Maior arrasto de superfície.
+
+VALOR ESTIMADO PARA O CÁLCULO:
+Se o usuário não souber o Cd exato, o simulador deve adotar um 
+padrão entre 0.6 e 0.8 para foguetes amadores completos.
+==========================================================================
+
+
+
+
+RASCUNHO:
+
+Integrar os três conceitos em um único sistema é a definição de um projeto "fodão".
+Você estará criando um Simulador de Missão Aeroespacial Completo, 
+que calcula desde a ignição no solo até a inserção em órbita estável,
+lidando com as perdas reais que engenheiros da NASA e SpaceX enfrentam
+
+A Arquitetura do Seu Simulador (Modularidade)
+Para garantir os pontos de modularidade e versionamento, estruture o código separando a física da interface. 
+O programa funcionará como uma simulação iterativa (passo a passo no tempo).
+
+1. Módulo de Atmosfera e Arrasto (aerodynamics.py)
+Esta função calcula a resistência do ar, que muda conforme o foguete sobe. 
+
+    Formula da Forca de Arrasto (Drag Force):
+    Fd = 0.5 * rho * v^2 * Cd * A
+
+    Onde:
+    Fd  = Forca de Arrasto
+    rho = Densidade do ar
+    v   = Velocidade do foguete
+    Cd  = Coeficiente de arrasto
+    A   = Area de referencia (secao transversal)
+
+
+Função Obrigatória: calcular_arrasto(altitude, velocidade, area_foguete, cd)
+O que faz: Recebe a altitude atual para determinar a densidade do ar (rho) e retorna a força de arrasto
+(Fd) usando a fórmula 
+
+
+2. Módulo de Propulsão e Massa (propulsion.py)
+Aqui você aplica a Equação de Tsiolkovsky e gerencia a queima de combustível. 
+
+    Δv = ve * ln(m0 / mf)
+    ve: Velocidade de exaustão efetiva dos gases (quão rápido o combustível é expelido).
+
+
+Função Obrigatória: calcular_aceleracao(empuxo, massa_atual, angulo_pitch)
+O que faz: Calcula a aceleração instantânea considerando que a massa do foguete diminui
+a cada segundo à medida que o combustível é expelido.
+
+
+3. Módulo de Mecânica Orbital e Perdas (orbital_mechanics.py)
+Este módulo verifica se o foguete atingiu a velocidade e altitude necessárias para não cair de volta. 
+
+Função Obrigatória: verificar_orbita(altitude, velocidade_tangencial)
+
+O que faz: Calcula a Velocidade Orbital Circular necessária para aquela altitude:
+
+    v = sqrt(G * M / r)
+
+    (Onde sqrt significa raiz quadrada) 
+
+    O que significa cada letra:
+    v: Velocidade orbital (m/s).
+    G: Constante Gravitacional Universal (G = 6,674 x 10^-11 N.m²/kg²).
+    M: Massa do planeta ou corpo central (ex: a Terra).
+    r: Distância do centro do planeta até o foguete (Raio do planeta + Altitude)
+
+e compara com a velocidade real do foguete. Ela também deve descontar as Perdas por Gravidade 
+
+    Δv_loss = g * sin(θ) * t
+
+
+g: Aceleração da gravidade (9,8 m/s²).
+θ (teta): O ângulo de inclinação do foguete em relação ao horizonte.
+t: O tempo de queima do motor. 
