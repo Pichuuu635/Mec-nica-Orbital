@@ -12,7 +12,7 @@ def play_init():
     frame_play = ctk.CTkFrame(janela, width=settings.WIDTH, height=settings.HEIGHT, fg_color=settings.COLOR_BG_DARK)
     frame_play.pack(fill="both", expand=True)
     
-    label_titulo = ctk.CTkLabel(frame_play, text="APOGEE", text_color="#1f538d", font=(settings.FONT_FAMILY_TECH, 70, "bold"))
+    label_titulo = ctk.CTkLabel(frame_play, text="APOGEE", text_color=settings.COLOR_ACCENT, font=(settings.FONT_FAMILY_TECH, 70, "bold"))
     label_titulo.place(relx=0.5, rely=0.1, anchor="center")
     
     label_sub = ctk.CTkLabel(frame_play, text="Aerospace Mission & Trajectory Simulator", text_color=settings.COLOR_TEXT_MAIN,font=(settings.FONT_FAMILY_TECH, 18, "italic"))
@@ -27,7 +27,7 @@ def play_init():
     except:
         print("Imagem não encontrada, pulando...")
         
-    button_start = ctk.CTkButton(frame_play, text="START", font=(settings.FONT_FAMILY_TECH, 16, "bold"), text_color="white", fg_color="#1f538d", hover_color="#14375e", corner_radius=10, height=50, width=400, command=start)
+    button_start = ctk.CTkButton(frame_play, text="START", font=(settings.FONT_FAMILY_TECH, 16, "bold"), text_color="white", fg_color=settings.COLOR_ACCENT, hover_color="#14375e", corner_radius=10, height=50, width=400, command=start)
     button_start.place(relx=0.5, rely=0.8, anchor="center")
     
     label_versao = ctk.CTkLabel(frame_play, text="v1.0.0", font=("Arial", 15))
