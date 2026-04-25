@@ -22,7 +22,7 @@ def calculate(dados):
             massa_molar = float(dados["massa_molar"])
             gradiente_termico = float(dados["gradiente_termico"])
             altitude_troposfera = float(dados["altitude_troposfera"])
-            temperatura_troposfera = float(dados["temperatura_troposfe      ra"])
+            temperatura_troposfera = float(dados["temperatura_troposfera"])
             
         else:
             print("Sem dados da atmosfera.")
@@ -47,12 +47,14 @@ def calculate(dados):
         velocidade = 0
         altitude = 0
         angulo = 90
+        tempo = 0
         g_no_alvo = gravidade_variavel(g_local, raio_p, altitude_alvo)
         v_orbital = velocidade_orbital(g_no_alvo, altitude_total)
         area_f = area_frontal(diametro_foguete)
         constante_gases = 8.314
-        pressao_trop = pressao_mar * (1 + ((gradiente_termico + altitude_troposfera)/temperatura_superficie))**((-g_local*massa_molar)/constante_gases*gradiente_termico)
-        
+        pressao_trop = pressao_mar * (1 + ((gradiente_termico * altitude_troposfera)/temperatura_superficie))**((-g_local*massa_molar)/constante_gases*gradiente_termico)
+        rho = 0
+        f_arrasto = 0
         print(f"Velocidade orbital no alvo: {v_orbital} m/s")
 
 
@@ -64,12 +66,30 @@ def calculate(dados):
             pressao_local = calcular_pressao_local(pressao_mar, gradiente_termico, altitude, 
                                    temperatura_superficie, g_local, massa_molar, constante_gases,
                                      altitude_troposfera, temperatura_troposfera, pressao_trop)
-            
-            calcular_rho(pressao_local, massa_molar, constante_gases, temp_local)
-            
-            
-            
+            if pressao_local > 1.0:
+                rho = calcular_rho(pressao_local, massa_molar, constante_gases, temp_local)
+            else:
+                rho = 0.0
 
+            f_arrasto = calcular_arrasto(rho, velocidade, coef_arrasto, area_f)
+
+            peso = massa_total * g_local 
+            forca_res = empuxo - f_arrasto - peso
+
+            aceleracao = forca_res / massa_total
+
+            velocidade += aceleracao * dt
+            altitude += velocidade * dt
+            tempo += dt
+            massa_total -= fluxo_massa * dt
+
+            if int(tempo / dt) % int(1/dt) == 0:
+                print(f"Tempo: {tempo:.1f}s | Alt: {altitude/1000:.2f}km | Vel: {velocidade:.1f}m/s | Rho: {rho:.4f}")
+            
+            # Condição de segurança para o chão
+            if altitude < 0:
+                print("O foguete caiu!")
+                break
 
 
     except Exception as e:
@@ -98,15 +118,21 @@ def calcular_temperatura_local(temp_sup, grad_term, alt, alt_trop, temp_trop):
 
 def calcular_pressao_local(p_mar, grad_term, alt, temp_sup, g, m_molar, const_gases, alt_trop, temp_trop, pressao_tropos):
     if alt < alt_trop:
-        pressao_local = p_mar * (1 + ((grad_term * alt)/temp_sup))**((-g*m_molar)/const_gases*grad_term)
+        pressao_local = p_mar * (1 + ((grad_term * alt)/temp_sup))**((-g*m_molar)/(const_gases*grad_term))
     else:
         alt_subida = alt - alt_trop
-        pressao_local = pressao_tropos * math.e**((-g*m_molar*alt_subida)/const_gases*temp_trop)
-        return pressao_local
+        pressao_local = pressao_tropos * math.e**((-g*m_molar*alt_subida)/(const_gases*temp_trop))
+    return pressao_local
 
 def calcular_rho(p_local, m_molar, const_gas, temp_local):
 
     rho = (p_local * m_molar)/(const_gas * temp_local)
 
     return rho
+
+def calcular_arrasto(rho, velocidade, cd, area):
+
+    arrasto = 0.5 * rho * (velocidade**2) * cd * area
+
+    return arrasto
 
