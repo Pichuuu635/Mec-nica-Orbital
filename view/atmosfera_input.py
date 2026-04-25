@@ -53,7 +53,6 @@ def atmosfera_input_init(dados_basicos, callback):
                     num = float(value)
                     if key in ["pressao_mar", "massa_molar", "altitude_troposfera"] and num <= 0:
                         errors.append(f"{key}: Deve ser positivo.")
-                    # gradiente_termico pode ser negativo
                 except ValueError:
                     errors.append(f"{key}: Deve ser um número válido.")
         if errors:
