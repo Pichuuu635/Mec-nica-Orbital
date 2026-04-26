@@ -1,0 +1,22 @@
+dados_final = {
+    "empuxo": 8500000.0,
+    "isp": 311.0,
+    "massa_seca": 25000.0,
+    "massa_combustivel": 400000.0,
+    "fluxo_massa": 2200.0,
+    "diametro_foguete": 3.7,
+    "coeficiente_arrasto": 0.3,
+    "raio_planeta": 6371.0,
+    "gravidade": 9.81,
+    "altitude_alvo": 500000.0,    # Desliga aos 500km
+    "alt_giro": 3000.0,
+    "taxa_giro": 0.75,            # Uma curva bem agressiva para ele ficar horizontal logo
+    "tem_atmosfera": True,
+    "pressao_mar": 101325.0,
+    "temperatura_superficie": 288.15,
+    "massa_molar": 0.02896,
+    "gradiente_termico": -0.0065,
+    "altitude_troposfera": 11000.0,
+    "temperatura_troposfera": 216.65,
+    "transferencia_hohmann": False
+}
